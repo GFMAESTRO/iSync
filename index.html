@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão PIPO 4.0</title>
+    <!-- Inclui a biblioteca de ícones Font Awesome para botões e outros elementos visuais -->
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <!-- Inclui o Tailwind CSS para estilização moderna e responsiva -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Define a fonte Inter como padrão para uma melhor legibilidade */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Estiliza a barra de rolagem */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: #374151;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #4b5563;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen p-4 sm:p-8">
+    <div class="max-w-7xl mx-auto">
+        <!-- Cabeçalho do portal -->
+        <header class="text-center mb-8 sm:mb-12">
+            <h1 class="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">
+                Gestão PIPO 4.0
+            </h1>
+        </header>
+
+        <!-- Navegação principal -->
+        <nav class="flex flex-wrap justify-center gap-2 sm:gap-4 mb-8 sm:mb-12">
+            <button data-section="dashboard" class="nav-button bg-blue-600 hover:bg-blue-700 active:bg-blue-800 transition-all">
+                <i class="fas fa-chart-line"></i>
+                Dashboard
+            </button>
+            <button data-section="financeiro" class="nav-button bg-gray-700 hover:bg-gray-600 active:bg-gray-500 transition-all">
+                <i class="fas fa-wallet"></i>
+                Financeiro
+            </button>
+            <button data-section="estoque" class="nav-button bg-gray-700 hover:bg-gray-600 active:bg-gray-500 transition-all">
+                <i class="fas fa-boxes"></i>
+                Estoque
+            </button>
+            <button data-section="precos" class="nav-button bg-gray-700 hover:bg-gray-600 active:bg-gray-500 transition-all">
+                <i class="fas fa-tags"></i>
+                Preços
+            </button>
+            <button data-section="tarefas" class="nav-button bg-gray-700 hover:bg-gray-600 active:bg-gray-500 transition-all">
+                <i class="fas fa-tasks"></i>
+                Tarefas
+            </button>
+            <button data-section="lancamentos" class="nav-button bg-gray-700 hover:bg-gray-600 active:bg-gray-500 transition-all">
+                <i class="fas fa-file-invoice-dollar"></i>
+                Lançamentos
+            </button>
+            <button data-section="vendas" class="nav-button bg-gray-700 hover:bg-gray-600 active:bg-gray-500 transition-all">
+                <i class="fas fa-shopping-cart"></i>
+                Vendas
+            </button>
+            <button data-section="transacoes" class="nav-button bg-gray-700 hover:bg-gray-600 active:bg-gray-500 transition-all">
+                <i class="fas fa-exchange-alt"></i>
+                Transações
+            </button>
+        </nav>
+
+        <!-- Área de conteúdo principal onde as seções serão renderizadas -->
+        <main id="content-area" class="bg-gray-800 p-4 sm:p-6 rounded-2xl shadow-xl transition-all duration-300">
+            <!-- O conteúdo será injetado aqui pelo JavaScript -->
+        </main>
+    </div>
+
+    <!-- Modal para adicionar item ao estoque -->
+    <div id="add-item-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-gray-800 p-6 rounded-xl shadow-2xl max-w-lg w-full">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-blue-400">Adicionar Novo Item</h3>
+                <button onclick="closeAddItemModal()" class="text-gray-400 hover:text-gray-100 transition-colors">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="add-item-form" class="space-y-4">
+                <div>
+                    <label for="modelo" class="block text-sm font-medium text-gray-300">Modelo</label>
+                    <input type="text" id="modelo" name="modelo" class="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 text-gray-100" required>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label for="gigas" class="block text-sm font-medium text-gray-300">Gigas</label>
+                        <input type="text" id="gigas" name="gigas" class="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 text-gray-100" required>
+                    </div>
+                    <div>
+                        <label for="cor" class="block text-sm font-medium text-gray-300">Cor</label>
+                        <input type="text" id="cor" name="cor" class="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 text-gray-100" required>
+                    </div>
+                </div>
+                <div>
+                    <label for="imei" class="block text-sm font-medium text-gray-300">IMEI</label>
+                    <input type="text" id="imei" name="imei" class="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 text-gray-100">
+                </div>
+                <div>
+                    <label for="fornecedor" class="block text-sm font-medium text-gray-300">Fornecedor</label>
+                    <input type="text" id="fornecedor" name="fornecedor" class="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 text-gray-100">
+                </div>
+                <div>
+                    <label for="valor" class="block text-sm font-medium text-gray-300">Valor (R$)</label>
+                    <input type="number" step="0.01" id="valor" name="valor" class="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 text-gray-100" required>
+                </div>
+                <div class="flex justify-end space-x-4">
+                    <button type="button" onclick="closeAddItemModal()" class="px-4 py-2 text-sm font-semibold rounded-xl bg-gray-600 hover:bg-gray-500 transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="px-4 py-2 text-sm font-semibold rounded-xl bg-blue-600 hover:bg-blue-700 transition-colors">
+                        Adicionar Item
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Dados simulados com base nos snippets das planilhas
+        // NOTA: Estes dados são codificados diretamente para simular o acesso aos arquivos.
+        // Em uma aplicação real, você usaria uma API para ler os arquivos CSV.
+
+        const data = {
+            dashboard: {
+                faturamento: "R$ 164.905,00",
+                lucroTotal: "R$ 14.886,67",
+                lucroPercentual: "9,03%",
+                lucroAparelhos: "R$ 13.325,50",
+                lucroAcsManutencao: "R$ 410,56",
+                lucroUpsell: "R$ 806,06",
+                ganhosTaxa: "R$ 344,55",
+                qtdVendas: 42,
+                lucroMedioPorVenda: "R$ 317,27",
+                rankingProdutos: [
+                    { produto: "AirPods 4", quantidade: 3 },
+                    { produto: "iPhone 15", quantidade: 2 },
+                    { produto: "iPhone 16 Pro", quantidade: 2 },
+                    { produto: "iPhone 11", quantidade: 2 },
+                    { produto: "AirPods Pro 2", quantidade: 2 },
+                    { produto: "iPhone 15 Pro Max", quantidade: 1 }
+                ],
+                meiosDeVenda: [
+                    { meio: "Indicação", quantidade: 7 },
+                    { meio: "OLX", quantidade: 15 },
+                    { meio: "Recompra", quantidade: 11 }
+                ]
+            },
+            financeiro: {
+                saldo: [
+                    { conta: "PAGBANK", valor: "R$ 17.512,63" },
+                    { conta: "INTER", valor: "R$ 4.860,78" },
+                    { conta: "DINHEIRO", valor: "R$ 0,00" },
+                    { conta: "ESTOQUE CEL.", valor: "R$ 11.600,00" },
+                ],
+                credores: [
+                    { nome: "JACKSON", valor: "R$ 1.700,00" },
+                    { nome: "ANA CAROLINA", valor: "-R$ 6.505,00" },
+                    { nome: "iBucks", valor: "" },
+                    { nome: "GO IMPORTS", valor: "" },
+                    { nome: "ITAMAR", valor: "" },
+                ],
+                outros: [
+                    { nome: "CARRO", valor: "R$ 24.831,00" },
+                    { nome: "CDB", valor: "R$ 532,20" },
+                ],
+                calculadoraTaxas: {
+                    valorAparelho: "R$ 2.600,00",
+                    tabela: [
+                        { parcelas: 1, valor: "R$ 2.694,30", taxa: "3,50%", valorTotal: "R$ 2.694,30" },
+                        { parcelas: 2, valor: "R$ 1.374,21", taxa: "5,40%", valorTotal: "R$ 2.748,41" },
+                        { parcelas: 3, valor: "R$ 923,19", taxa: "6,10%", valorTotal: "R$ 2.768,90" },
+                        { parcelas: 4, valor: "R$ 698,06", taxa: "6,90%", valorTotal: "R$ 2.792,26" },
+                    ]
+                }
+            },
+            estoque: [
+                { modelo: "iPhone 14 Pro Max", gigas: "128GB", cor: "ROXO", imei: "359702378106007", fornecedor: "", valor: "R$ 3.700,00", dataEnt: "14/07/2025", tempEst: 18 },
+                { modelo: "iPhone 15", gigas: "128GB", cor: "AZUL", imei: "MD97J766PR", fornecedor: "", valor: "R$ 2.900,00", dataEnt: "14/07/2025", tempEst: 18 },
+                { modelo: 'MacBook Air M3 13"', gigas: "512", cor: "MIDNIGHT", imei: "", fornecedor: "", valor: "R$ 5.000,00", dataEnt: "16/07/2025", tempEst: 16 }
+            ],
+            precos: {
+                seminovos: [
+                    { modelo: "iPhone 12 Pro Max - 128GB", compra: "R$ 2.700", venda: "R$ 3.049" },
+                    { modelo: "iPhone 13 - 128GB", compra: "R$ 2.000", venda: "R$ 2.349" },
+                    { modelo: "iPhone 14 - 128GB", compra: "R$ 2.400", venda: "R$ 2.749" },
+                ],
+                novos: [
+                    { modelo: "AirPods 4 (Cancelamento de Ruído)", compra: "R$ 1.200", venda: "R$ 1.399" },
+                    { modelo: "AirPods Pro 2 USB-C", compra: "R$ 1.350", venda: "R$ 1.599" },
+                    { modelo: "AirPods MAX", compra: "R$ 3.500", venda: "R$ 3.749" },
+                ],
+                diversos: [
+                    { modelo: "JBL Flip 6", compra: "R$ 580", venda: "R$ 699" },
+                    { modelo: "JBL Flip 7", compra: "R$ 680", venda: "R$ 799" },
+                    { modelo: "Fonte Turbo 20W", compra: "R$ 130", venda: "R$ 199" },
+                ]
+            },
+            tarefas: [
+                { dia: "SEGUNDA", tasks: [{ status: false }, { status: false }] },
+                { dia: "TERÇA", tasks: [{ status: false }, { status: false }] },
+                { dia: "QUARTA", tasks: [{ status: false }, { status: false }] },
+                { dia: "QUINTA", tasks: [{ status: false }, { status: false }] },
+                { dia: "SEXTA", tasks: [{ status: false }, { status: false }] },
+                { dia: "SÁBADO", tasks: [{ status: false }, { status: false }] },
+            ],
+            lancamentos: [
+                { data: '24/07/2025', vendedor: 'GABRIELL', modelo: 'LARK M2', valor: 'R$ 1.180,00', custo: 'R$ 930,00', cliente: 'JOBERTHE' },
+                { data: '23/07/2025', vendedor: 'ANA', modelo: 'iPhone 15', valor: 'R$ 6.300,00', custo: 'R$ 5.900,00', cliente: 'ROBERTO' },
+            ],
+            vendas: [
+                { mes: "JULHO", ano: 2025, id: 913, data: "24/07/2025", vendedor: "GABRIELL", modelo: "LARK M2", valorVenda: "R$ 1.180,00", lucroTotal: "R$ 250,00" },
+                { mes: "JULHO", ano: 2025, id: 912, data: "23/07/2025", vendedor: "GABRIELL", modelo: "IPHONE 16 PRO", valorVenda: "R$ 6.900,00", lucroTotal: "R$ 345,00" },
+                { mes: "FEVEREIRO", ano: 2023, id: 9, data: "09/02/2023", vendedor: "GABRIELL", modelo: "iPhone 13 Pro Max", valorVenda: "R$ 6.700,00", lucroTotal: "R$ 330,00" },
+            ],
+            transacoes: [
+                { ano: 2025, mes: "JULHO", data: "23/07/2025", categoria: "VENDA - ACS", tipo: "ENTRADA", local: "PAGBANK", descricao: "PELÍCULA", valor: "R$ 19,33" },
+                { ano: 2025, mes: "JULHO", data: "23/07/2025", categoria: "CDB", tipo: "SAÍDA", local: "PAGBANK", descricao: "APLICAÇÃO CDB", valor: "R$ 37,07" },
+                { ano: 2024, mes: "FEVEREIRO", data: "18/02/2024", categoria: "PGT CONTAS", tipo: "SAÍDA", local: "ITAÚ", descricao: "MGZ LUIZA", valor: "R$ 243,39" },
+            ]
+        };
+
+        const contentArea = document.getElementById('content-area');
+        const navButtons = document.querySelectorAll('.nav-button');
+        const addItemModal = document.getElementById('add-item-modal');
+        const addItemForm = document.getElementById('add-item-form');
+
+        // Adiciona a classe de estilo aos botões de navegação
+        navButtons.forEach(button => {
+            button.className = "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap shadow-md";
+        });
+
+        // Adiciona um listener para os botões de navegação
+        navButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                navButtons.forEach(btn => {
+                    btn.classList.remove('bg-blue-600', 'hover:bg-blue-700', 'active:bg-blue-800');
+                    btn.classList.add('bg-gray-700', 'hover:bg-gray-600', 'active:bg-gray-500');
+                });
+                button.classList.add('bg-blue-600', 'hover:bg-blue-700', 'active:bg-blue-800');
+                button.classList.remove('bg-gray-700', 'hover:bg-gray-600', 'active:bg-gray-500');
+                showSection(button.dataset.section);
+            });
+        });
+
+        /**
+         * Exibe a seção de conteúdo selecionada.
+         * @param {string} sectionName - O nome da seção a ser exibida.
+         */
+        function showSection(sectionName) {
+            contentArea.innerHTML = '';
+            let content = '';
+
+            switch (sectionName) {
+                case 'dashboard':
+                    content = renderDashboard();
+                    break;
+                case 'financeiro':
+                    content = renderFinanceiro();
+                    break;
+                case 'estoque':
+                    content = renderEstoque();
+                    break;
+                case 'precos':
+                    content = renderPrecos();
+                    break;
+                case 'tarefas':
+                    content = renderTarefas();
+                    break;
+                case 'lancamentos':
+                    content = renderLancamentos();
+                    break;
+                case 'vendas':
+                    content = renderVendas();
+                    break;
+                case 'transacoes':
+                    content = renderTransacoes();
+                    break;
+                default:
+                    content = `
+                        <div class="p-6 text-center text-gray-500">
+                            Selecione uma seção para visualizar o conteúdo.
+                        </div>
+                    `;
+            }
+            contentArea.innerHTML = content;
+        }
+
+        /**
+         * Gera o HTML para a seção de Dashboard.
+         * @returns {string} HTML renderizado.
+         */
+        function renderDashboard() {
+            const d = data.dashboard;
+            return `
+                <h2 class="text-2xl font-bold mb-6 text-blue-400">Dashboard de Julho</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    <div class="card">
+                        <p class="text-sm text-gray-400">Faturamento</p>
+                        <p class="text-2xl font-bold text-blue-300">${d.faturamento}</p>
+                    </div>
+                    <div class="card">
+                        <p class="text-sm text-gray-400">Lucro Total</p>
+                        <p class="text-2xl font-bold text-blue-300">${d.lucroTotal} <span class="text-base text-gray-400">(${d.lucroPercentual})</span></p>
+                    </div>
+                    <div class="card">
+                        <p class="text-sm text-gray-400">Qtd de Vendas</p>
+                        <p class="text-2xl font-bold text-blue-300">${d.qtdVendas}</p>
+                    </div>
+                    <div class="card">
+                        <p class="text-sm text-gray-400">Lucro Médio por Venda</p>
+                        <p class="text-2xl font-bold text-blue-300">${d.lucroMedioPorVenda}</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="card">
+                        <h3 class="text-lg font-semibold mb-4">Lucros por Categoria</h3>
+                        <ul class="space-y-2 text-sm text-gray-300">
+                            <li><span class="font-medium text-blue-300">Aparelhos:</span> ${d.lucroAparelhos}</li>
+                            <li><span class="font-medium text-blue-300">Acs / Manutenção:</span> ${d.lucroAcsManutencao}</li>
+                            <li><span class="font-medium text-blue-300">Upsell:</span> ${d.lucroUpsell}</li>
+                            <li><span class="font-medium text-blue-300">Ganhos de Taxa:</span> ${d.ganhosTaxa}</li>
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3 class="text-lg font-semibold mb-4">Ranking de Produtos</h3>
+                        <ul class="space-y-2 text-sm text-gray-300">
+                            ${d.rankingProdutos.map(item => `
+                                <li>
+                                    <span class="font-medium text-blue-300">${item.quantidade}x</span> - ${item.produto}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3 class="text-lg font-semibold mb-4">Meios de Venda</h3>
+                        <ul class="space-y-2 text-sm text-gray-300">
+                            ${d.meiosDeVenda.map(item => `
+                                <li>
+                                    <span class="font-medium text-blue-300">${item.quantidade}x</span> - ${item.meio}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Gera o HTML para a seção de Financeiro.
+         * @returns {string} HTML renderizado.
+         */
+        function renderFinanceiro() {
+            const f = data.financeiro;
+            return `
+                <h2 class="text-2xl font-bold mb-6 text-blue-400">Financeiro</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4">Quadro Monetário</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                            ${f.saldo.map(item => `
+                                <div class="card p-3 text-center">
+                                    <p class="text-sm text-gray-400">${item.conta}</p>
+                                    <p class="text-lg font-bold text-blue-300">${item.valor}</p>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <h3 class="text-xl font-semibold mb-4">Credores</h3>
+                        <div class="card p-4">
+                            <ul class="space-y-2">
+                                ${f.credores.map(item => `
+                                    <li class="flex justify-between items-center text-sm">
+                                        <span class="font-medium">${item.nome}</span>
+                                        <span class="text-gray-300">${item.valor || 'N/A'}</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-semibold mb-4">Calculadora de Taxas</h3>
+                        <div class="card p-4 mb-6">
+                            <p class="text-sm text-gray-400 mb-2">Valor do Aparelho: <span class="font-bold text-blue-300">${f.calculadoraTaxas.valorAparelho}</span></p>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-700">
+                                    <thead>
+                                        <tr>
+                                            <th class="py-2 text-left text-xs font-medium text-gray-400">Parcelas</th>
+                                            <th class="py-2 text-left text-xs font-medium text-gray-400">Valor Parcela</th>
+                                            <th class="py-2 text-left text-xs font-medium text-gray-400">Taxa</th>
+                                            <th class="py-2 text-left text-xs font-medium text-gray-400">Valor Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-700">
+                                        ${f.calculadoraTaxas.tabela.map(item => `
+                                            <tr>
+                                                <td class="py-2 whitespace-nowrap text-sm text-gray-300">${item.parcelas}</td>
+                                                <td class="py-2 whitespace-nowrap text-sm text-gray-300">${item.valor}</td>
+                                                <td class="py-2 whitespace-nowrap text-sm text-gray-300">${item.taxa}</td>
+                                                <td class="py-2 whitespace-nowrap text-sm text-gray-300">${item.valorTotal}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Gera o HTML para a seção de Estoque.
+         * @returns {string} HTML renderizado.
+         */
+        function renderEstoque() {
+            const e = data.estoque;
+            return `
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-blue-400">Estoque</h2>
+                    <button onclick="openAddItemModal()" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap shadow-md bg-blue-600 hover:bg-blue-700 transition-colors">
+                        <i class="fas fa-plus"></i>
+                        Adicionar Item
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-700">
+                        <thead>
+                            <tr>
+                                <th class="py-3 text-left text-xs font-medium text-gray-400">Modelo</th>
+                                <th class="py-3 text-left text-xs font-medium text-gray-400">Gigas</th>
+                                <th class="py-3 text-left text-xs font-medium text-gray-400">Cor</th>
+                                <th class="py-3 text-left text-xs font-medium text-gray-400">IMEI</th>
+                                <th class="py-3 text-left text-xs font-medium text-gray-400">Fornecedor</th>
+                                <th class="py-3 text-left text-xs font-medium text-gray-400">Valor</th>
+                                <th class="py-3 text-left text-xs font-medium text-gray-400">Data Ent.</th>
+                                <th class="py-3 text-left text-xs font-medium text-gray-400">Tempo Est.</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-700">
+                            ${e.map(item => `
+                                <tr>
+                                    <td class="py-4 whitespace-nowrap text-sm font-medium text-blue-300">${item.modelo}</td>
+                                    <td class="py-4 whitespace-nowrap text-sm text-gray-300">${item.gigas}</td>
+                                    <td class="py-4 whitespace-nowrap text-sm text-gray-300">${item.cor}</td>
+                                    <td class="py-4 whitespace-nowrap text-sm text-gray-300">${item.imei}</td>
+                                    <td class="py-4 whitespace-nowrap text-sm text-gray-300">${item.fornecedor || 'N/A'}</td>
+                                    <td class="py-4 whitespace-nowrap text-sm text-green-400">${item.valor}</td>
+                                    <td class="py-4 whitespace-nowrap text-sm text-gray-300">${item.dataEnt}</td>
+                                    <td class="py-4 whitespace-nowrap text-sm text-gray-300">${item.tempEst} dias</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        /**
+         * Gera o HTML para a seção de Preços.
+         * @returns {string} HTML renderizado.
+         */
+        function renderPrecos() {
+            const p = data.precos;
+            const tableHeader = `
+                <table class="min-w-full divide-y divide-gray-700 mb-8">
+                    <thead>
+                        <tr>
+                            <th class="py-3 text-left text-xs font-medium text-gray-400">Modelo</th>
+                            <th class="py-3 text-left text-xs font-medium text-gray-400">Preço Compra</th>
+                            <th class="py-3 text-left text-xs font-medium text-gray-400">Preço Venda</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-700">
+            `;
+            const tableFooter = `
+                    </tbody>
+                </table>
+            `;
+
+            return `
+                <h2 class="text-2xl font-bold mb-6 text-blue-400">Preços</h2>
+                <h3 class="text-xl font-semibold mb-4">Tabela Seminovos</h3>
+                <div class="overflow-x-auto">${tableHeader}
+                    ${p.seminovos.map(item => `
+                        <tr>
+                            <td class="py-4 whitespace-nowrap text-sm font-medium text-blue-300">${item.modelo}</td>
+                            <td class="py-4 whitespace-nowrap text-sm text-red-400">${item.compra}</td>
+                            <td class="py-4 whitespace-nowrap text-sm text-green-400">${item.venda}</td>
+                        </tr>
+                    `).join('')}
+                ${tableFooter}</div>
+
+                <h3 class="text-xl font-semibold mb-4 mt-8">Tabela Novos</h3>
+                <div class="overflow-x-auto">${tableHeader}
+                    ${p.novos.map(item => `
+                        <tr>
+                            <td class="py-4 whitespace-nowrap text-sm font-medium text-blue-300">${item.modelo}</td>
+                            <td class="py-4 whitespace-nowrap text-sm text-red-400">${item.compra}</td>
+                            <td class="py-4 whitespace-nowrap text-sm text-green-400">${item.venda}</td>
+                        </tr>
+                    `).join('')}
+                ${tableFooter}</div>
+            `;
+        }
+        
+        /**
+         * Gera o HTML para a seção de Tarefas.
+         * @returns {string} HTML renderizado.
+         */
+        function renderTarefas() {
+            const t = data.tarefas;
+            const headers = t.map(item => `<th class="py-3 text-center text-xs font-medium text-gray-400">${item.dia}</th>`).join('');
+            const rowCount = t.length > 0 ? t[0].tasks.length : 0;
+            let rowsHtml = '';
+            for (let i = 0; i < rowCount; i++) {
+                rowsHtml += '<tr>';
+                rowsHtml += t.map(col => `
+                    <td class="py-4 whitespace-nowrap text-center text-sm">
+                        ${col.tasks[i].status ? `<i class="fas fa-check-circle text-green-500"></i>` : `<i class="far fa-circle text-gray-500"></i>`}
+                    </td>
+                `).join('');
+                rowsHtml += '</tr>';
+            }
+            
+            return `
+                <h2 class="text-2xl font-bold mb-6 text-blue-400">Tarefas Semanal</h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-700">
+                        <thead>
+                            <tr>${headers}</tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-700">
+                            ${rowsHtml}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        /**
+         * Gera o HTML para a seção de Lançamentos.
+         * @returns {string} HTML renderizado.
+         */
+        function renderLancamentos() {
+            const l = data.lancamentos;
+            return `
+                <h2 class="text-2xl font-bold mb-6 text-blue-400">Lançamento de Vendas</h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-700">
+                        <thead>
+                            <tr>
+                                <th class="py-3 text-left text-xs font-medium text-gray-400">Data</th>
+                                <th class="py-3 text-left text-xs font-medium text-gray-400">Vendedor</th>
+                                <th class="py-3 text-left text-xs font-medium text-gray-400">Cliente</th>
+                                <th class="py-3 text-left text-xs font-medium text-gray-400">Modelo</th>
+                                <th class="py-3 text-left text-xs font-medium text-gray-400">Valor Venda</th>
+                                <th class="py-3 text-left text-xs font-medium text-gray-400">Custo</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-700">
+                            ${l.map(item => `
+                                <tr>
+                                    <td class="py-4 whitespace-nowrap text-sm text-gray-300">${item.data}</td>
+                                    <td class="py-4 whitespace-nowrap text-sm text-gray-300">${item.vendedor}</td>
+                                    <td class="py-4 whitespace-nowrap text-sm text-blue-300">${item.cliente}</td>
+                                    <td class="py-4 whitespace-nowrap text-sm text-gray-300">${item.modelo}</td>
+                                    <td class="py-4 whitespace-nowrap text-sm text-green-400">${item.valor}</td>
+                                    <td class="py-4 whitespace-nowrap text-sm text-red-400">${item.custo}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        /**
+         * Gera o HTML para a seção de Vendas.
+         * @returns {string} HTML renderizado.
+         */
+        function renderVendas() {
+            const v = data.vendas;
+            return `
+                <h2 class="text-2xl font-bold mb-6 text-blue-400">Registro de Vendas</h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-700">
+                        <thead>
+                            <tr>
+                                <th class="py-3 text-left text-xs font-medium text-gray-400">Mês/Ano</th>
+                                <th class="py-3 text-left text-xs font-medium text-gray-400">ID</th>
+                                <th class="py-3 text-left text-xs font-medium text-gray-400">Data</th>
+                                <th class="py-3 text-left text-xs font-medium text-gray-400">Vendedor</th>
+                                <th class="py-3 text-left text-xs font-medium text-gray-400">Modelo</th>
+                                <th class="py-3 text-left text-xs font-medium text-gray-400">Valor Venda</th>
+                                <th class="py-3 text-left text-xs font-medium text-gray-400">Lucro Total</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-700">
+                            ${v.map(item => `
+                                <tr>
+                                    <td class="py-4 whitespace-nowrap text-sm text-gray-300">${item.mes} ${item.ano}</td>
+                                    <td class="py-4 whitespace-nowrap text-sm text-gray-300">#${item.id}</td>
+                                    <td class="py-4 whitespace-nowrap text-sm text-gray-300">${item.data}</td>
+                                    <td class="py-4 whitespace-nowrap text-sm text-gray-300">${item.vendedor}</td>
+                                    <td class="py-4 whitespace-nowrap text-sm text-blue-300">${item.modelo}</td>
+                                    <td class="py-4 whitespace-nowrap text-sm text-green-400">${item.valorVenda}</td>
+                                    <td class="py-4 whitespace-nowrap text-sm font-medium text-green-400">${item.lucroTotal}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        /**
+         * Gera o HTML para a seção de Transações.
+         * @returns {string} HTML renderizado.
+         */
+        function renderTransacoes() {
+            const t = data.transacoes;
+            return `
+                <h2 class="text-2xl font-bold mb-6 text-blue-400">Registro de Transações</h2>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-700">
+                        <thead>
+                            <tr>
+                                <th class="py-3 text-left text-xs font-medium text-gray-400">Mês/Ano</th>
+                                <th class="py-3 text-left text-xs font-medium text-gray-400">Data</th>
+                                <th class="py-3 text-left text-xs font-medium text-gray-400">Categoria</th>
+                                <th class="py-3 text-left text-xs font-medium text-gray-400">Tipo</th>
+                                <th class="py-3 text-left text-xs font-medium text-gray-400">Local</th>
+                                <th class="py-3 text-left text-xs font-medium text-gray-400">Descrição</th>
+                                <th class="py-3 text-left text-xs font-medium text-gray-400">Valor</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-700">
+                            ${t.map(item => `
+                                <tr>
+                                    <td class="py-4 whitespace-nowrap text-sm text-gray-300">${item.mes} ${item.ano}</td>
+                                    <td class="py-4 whitespace-nowrap text-sm text-gray-300">${item.data}</td>
+                                    <td class="py-4 whitespace-nowrap text-sm text-blue-300">${item.categoria}</td>
+                                    <td class="py-4 whitespace-nowrap text-sm ${item.tipo === 'ENTRADA' ? 'text-green-400' : 'text-red-400'}">${item.tipo}</td>
+                                    <td class="py-4 whitespace-nowrap text-sm text-gray-300">${item.local}</td>
+                                    <td class="py-4 whitespace-nowrap text-sm text-gray-300">${item.descricao}</td>
+                                    <td class="py-4 whitespace-nowrap text-sm font-medium ${item.tipo === 'ENTRADA' ? 'text-green-400' : 'text-red-400'}">${item.valor}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+        
+        /**
+         * Abre o modal para adicionar um novo item ao estoque.
+         */
+        function openAddItemModal() {
+            addItemModal.classList.remove('hidden');
+        }
+
+        /**
+         * Fecha o modal de adicionar item.
+         */
+        function closeAddItemModal() {
+            addItemModal.classList.add('hidden');
+            addItemForm.reset();
+        }
+
+        /**
+         * Manipula o envio do formulário de adicionar item.
+         * @param {Event} event - O evento de envio do formulário.
+         */
+        addItemForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const now = new Date();
+            const today = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()}`;
+
+            const newItem = {
+                modelo: addItemForm.modelo.value,
+                gigas: addItemForm.gigas.value,
+                cor: addItemForm.cor.value,
+                imei: addItemForm.imei.value,
+                fornecedor: addItemForm.fornecedor.value || '',
+                valor: `R$ ${parseFloat(addItemForm.valor.value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+                dataEnt: today,
+                tempEst: 0 // Novo item começa com 0 dias em estoque
+            };
+
+            data.estoque.push(newItem);
+            closeAddItemModal();
+            showSection('estoque');
+        });
+
+        // Estilos para os cartões e tabelas
+        const style = document.createElement('style');
+        style.innerHTML = `
+            .card {
+                background-color: #1f2937;
+                border-radius: 1rem;
+                padding: 1.5rem;
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            }
+            th, td {
+                padding: 0.75rem;
+                vertical-align: top;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Exibe a seção inicial ao carregar a página
+        document.addEventListener('DOMContentLoaded', () => {
+            showSection('dashboard');
+        });
+    </script>
+</body>
+</html>
