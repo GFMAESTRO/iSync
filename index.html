@@ -385,6 +385,23 @@
         data.financeiro.calculadoraTaxas.tabela = calculateTaxas(data.financeiro.calculadoraTaxas.valorAparelho);
 
         /**
+         * Atualiza a exibição da tabela de taxas no HTML.
+         */
+        function updateTaxasTableDisplay() {
+            const tableBody = document.getElementById('taxasTableBody');
+            if (tableBody) {
+                tableBody.innerHTML = data.financeiro.calculadoraTaxas.tabela.map(item => `
+                    <tr>
+                        <td class="py-2 whitespace-nowrap text-sm text-gray-300">${item.parcelas}</td>
+                        <td class="py-2 whitespace-nowrap text-sm text-gray-300">${item.valor}</td>
+                        <td class="py-2 whitespace-nowrap text-sm text-gray-300">${item.taxa}</td>
+                        <td class="py-2 whitespace-nowrap text-sm text-gray-300">${item.valorTotal}</td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        /**
          * Atualiza a calculadora de taxas com um novo valor.
          * @param {string} newValue - O novo valor do aparelho (como string).
          */
@@ -394,10 +411,10 @@
                 data.financeiro.calculadoraTaxas.valorAparelho = numericValue;
                 data.financeiro.calculadoraTaxas.tabela = calculateTaxas(numericValue);
             } else if (newValue === '') {
-                data.financeiro.calculadoraTaxas.valorAparelho = 0; // Ou null, dependendo de como você quer tratar
-                data.financeiro.calculadoraTaxas.tabela = calculateTaxas(0); // Limpa a tabela ou mostra com 0
+                data.financeiro.calculadoraTaxas.valorAparelho = 0;
+                data.financeiro.calculadoraTaxas.tabela = calculateTaxas(0);
             }
-            showSection('financeiro'); // Re-renderiza a seção financeira para mostrar as atualizações
+            updateTaxasTableDisplay(); // Apenas atualiza a tabela, não a seção inteira
         }
 
         /**
@@ -449,15 +466,8 @@
                                             <th class="py-2 text-left text-xs font-medium text-gray-400">Valor Total</th>
                                         </tr>
                                     </thead>
-                                    <tbody class="divide-y divide-gray-700">
-                                        ${f.calculadoraTaxas.tabela.map(item => `
-                                            <tr>
-                                                <td class="py-2 whitespace-nowrap text-sm text-gray-300">${item.parcelas}</td>
-                                                <td class="py-2 whitespace-nowrap text-sm text-gray-300">${item.valor}</td>
-                                                <td class="py-2 whitespace-nowrap text-sm text-gray-300">${item.taxa}</td>
-                                                <td class="py-2 whitespace-nowrap text-sm text-gray-300">${item.valorTotal}</td>
-                                            </tr>
-                                        `).join('')}
+                                    <tbody id="taxasTableBody" class="divide-y divide-gray-700">
+                                        <!-- O conteúdo da tabela será atualizado dinamicamente -->
                                     </tbody>
                                 </table>
                             </div>
