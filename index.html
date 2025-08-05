@@ -157,7 +157,7 @@
                 meiosDeVenda: [
                     { meio: "Indicação", quantidade: 7 },
                     { meio: "OLX", quantidade: 15 },
-                    { meio: "Recompra", quantidade: 11 }
+                    { meio: "Recompra", quantity: 11 }
                 ]
             },
             financeiro: {
@@ -179,13 +179,8 @@
                     { nome: "CDB", valor: "R$ 532,20" },
                 ],
                 calculadoraTaxas: {
-                    valorAparelho: "R$ 2.600,00",
-                    tabela: [
-                        { parcelas: 1, valor: "R$ 2.694,30", taxa: "3,50%", valorTotal: "R$ 2.694,30" },
-                        { parcelas: 2, valor: "R$ 1.374,21", taxa: "5,40%", valorTotal: "R$ 2.748,41" },
-                        { parcelas: 3, valor: "R$ 923,19", taxa: "6,10%", valorTotal: "R$ 2.768,90" },
-                        { parcelas: 4, valor: "R$ 698,06", taxa: "6,90%", valorTotal: "R$ 2.792,26" },
-                    ]
+                    valorAparelho: 2600.00, // Armazenado como número para cálculo
+                    tabela: [] // Será preenchido dinamicamente
                 }
             },
             estoque: [
@@ -352,13 +347,57 @@
                         <ul class="space-y-2 text-sm text-gray-300">
                             ${d.meiosDeVenda.map(item => `
                                 <li>
-                                    <span class="font-medium text-blue-300">${item.quantidade}x</span> - ${item.meio}
+                                    <span class="font-medium text-blue-300">${item.quantity}x</span> - ${item.meio}
                                 </li>
                             `).join('')}
                         </ul>
                     </div>
                 </div>
             `;
+        }
+
+        /**
+         * Calcula as taxas para a calculadora de taxas.
+         * @param {number} baseValue - O valor base do aparelho.
+         * @returns {Array<Object>} Um array de objetos com os detalhes das parcelas.
+         */
+        function calculateTaxas(baseValue) {
+            const taxasConfig = [
+                { rate: 0.0350, parcels: 1 },
+                { rate: 0.0540, parcels: 2 },
+                { rate: 0.0610, parcels: 3 },
+                { rate: 0.0690, parcels: 4 }
+            ];
+
+            return taxasConfig.map(t => {
+                const totalValue = baseValue * (1 + t.rate);
+                const parcelValue = totalValue / t.parcels;
+                return {
+                    parcelas: t.parcels,
+                    valor: `R$ ${parcelValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                    taxa: `${(t.rate * 100).toFixed(2)}%`,
+                    valorTotal: `R$ ${totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                };
+            });
+        }
+
+        // Calcula a tabela de taxas inicial ao carregar a página
+        data.financeiro.calculadoraTaxas.tabela = calculateTaxas(data.financeiro.calculadoraTaxas.valorAparelho);
+
+        /**
+         * Atualiza a calculadora de taxas com um novo valor.
+         * @param {string} newValue - O novo valor do aparelho (como string).
+         */
+        function updateTaxaCalculator(newValue) {
+            const numericValue = parseFloat(newValue.replace(',', '.')); // Garante que o ponto seja o separador decimal
+            if (!isNaN(numericValue) && numericValue >= 0) {
+                data.financeiro.calculadoraTaxas.valorAparelho = numericValue;
+                data.financeiro.calculadoraTaxas.tabela = calculateTaxas(numericValue);
+            } else if (newValue === '') {
+                data.financeiro.calculadoraTaxas.valorAparelho = 0; // Ou null, dependendo de como você quer tratar
+                data.financeiro.calculadoraTaxas.tabela = calculateTaxas(0); // Limpa a tabela ou mostra com 0
+            }
+            showSection('financeiro'); // Re-renderiza a seção financeira para mostrar as atualizações
         }
 
         /**
@@ -396,8 +435,11 @@
                     <div>
                         <h3 class="text-xl font-semibold mb-4">Calculadora de Taxas</h3>
                         <div class="card p-4 mb-6">
-                            <p class="text-sm text-gray-400 mb-2">Valor do Aparelho: <span class="font-bold text-blue-300">${f.calculadoraTaxas.valorAparelho}</span></p>
-                            <div class="overflow-x-auto">
+                            <label for="valorAparelhoInput" class="block text-sm text-gray-400 mb-2">Valor do Aparelho:</label>
+                            <input type="number" step="0.01" id="valorAparelhoInput" value="${f.calculadoraTaxas.valorAparelho}"
+                                class="mt-1 block w-full rounded-md bg-gray-700 border-gray-600 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2 text-gray-100"
+                                oninput="updateTaxaCalculator(this.value)">
+                            <div class="overflow-x-auto mt-4">
                                 <table class="min-w-full divide-y divide-gray-700">
                                     <thead>
                                         <tr>
